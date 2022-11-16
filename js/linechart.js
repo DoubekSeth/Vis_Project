@@ -6,8 +6,8 @@ class linechart {
     constructor(data) {
         this.cardData = data;
 
-        const CHART_WIDTH = 750;
-        const CHART_HEIGHT = 500;
+        this.chart_width  = 750;
+        this.chart_height = 500;
         this.yAxisPadding = 80;
         this.xAxisPadding = 50;
 
@@ -29,12 +29,15 @@ class linechart {
         //Setting the two axis
         this.xAxis = d3.scaleTime()
             .domain(this.GetMaxMinDates(this.artist_art_date))
-            .range([0, CHART_WIDTH - this.yAxisPadding])
+            .range([0, this.chart_width - this.yAxisPadding])
             .nice();
         this.yAxis = d3.scaleLinear()
             .domain([0, this.GetMaxUniqueArts(this.artist_art_date)])
-            .range([0, CHART_HEIGHT - this.xAxisPadding])
+            .range([this.chart_height - this.xAxisPadding, 10])
             .nice();
+        
+        this.SetSVGSize();
+        this.CreateAxis();
     }
 
     /**
@@ -86,5 +89,27 @@ class linechart {
         });
 
         return maxArts;
+    }
+
+    SetSVGSize(){
+        d3.select('#line-chart-svg')
+            .attr('width', this.chart_width)
+            .attr('height', this.chart_height);
+    }
+
+    /**
+     * Creates the axis for the linechart
+     */
+    CreateAxis(){
+        let linesvg = d3.select('#line-chart-svg')
+
+        linesvg.select('#line-chart-yaxis')
+            .attr('transform', `translate(${this.yAxisPadding},0)`)
+            .call(d3.axisLeft(this.yAxis));
+
+        linesvg.select('#line-chart-xaxis')
+            .attr('transform', `translate(${this.yAxisPadding}, ${this.chart_height - this.xAxisPadding})`)
+            .call(d3.axisBottom(this.xAxis)
+                .tickFormat(d3.timeFormat('%b %Y')));
     }
 }
